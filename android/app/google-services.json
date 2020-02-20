@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "457481061680",
+    "firebase_url": "https://matrimonial-7e828.firebaseio.com",
+    "project_id": "matrimonial-7e828",
+    "storage_bucket": "matrimonial-7e828.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457481061680:android:0f9971c2cdc3b818ab34f5",
+        "android_client_info": {
+          "package_name": "com.example.matrimonial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457481061680-ptprfb1v8n66bvtjokub1f1jd9g1cq9q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.matrimonial",
+            "certificate_hash": "8e3cdcac95b5255f861ed4f8d653378f3b058dbd"
+          }
+        },
+        {
+          "client_id": "457481061680-hs0rks21k1s75chua9047t358tj7a3jg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDANzuENZmzudCEZVpDydzOmSLgOx0BznE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457481061680-hs0rks21k1s75chua9047t358tj7a3jg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
