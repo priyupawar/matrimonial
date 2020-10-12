@@ -13,6 +13,8 @@ import 'package:matrimonial/widget/horizontalline.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../localstorage.dart';
+
 String name = '';
 
 void logout() async {
@@ -25,7 +27,7 @@ void logout() async {
   }
 
   //print(prefs.getString('file'));
-  //LocalStorage().deleteFile(File(prefs.getString('file')));
+  LocalStorage().deleteFile(File(prefs.getString('file')));
 }
 
 class Sidenav extends StatefulWidget {
@@ -52,14 +54,23 @@ class _SidenavState extends State<Sidenav> {
       child: Column(
         children: <Widget>[
           UserProfile(widget.email),
-          ListTile(
-            leading: Icon(Icons.edit),
-            title: Text('My Profile'),
-            onTap: () {
-              Navigator.pushNamed(context, '/myprofile',
-                  arguments: widget.email);
-            },
-          ),
+          widget.admin
+              ? ListTile(
+                  leading: Icon(Icons.list),
+                  title: Text('ShortList'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/adminshortlist',
+                        arguments: widget.email);
+                  },
+                )
+              : ListTile(
+                  leading: Icon(Icons.edit),
+                  title: Text('My Profile'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/myprofile',
+                        arguments: widget.email);
+                  },
+                ),
           horizontalLine(MediaQuery.of(context).size.width),
           // ListTile(
           //   leading: Icon(Icons.edit),
@@ -82,14 +93,15 @@ class _SidenavState extends State<Sidenav> {
                     Navigator.pushNamed(context, '/shortlist');
                   },
                 ),
-          horizontalLine(MediaQuery.of(context).size.width),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Payments'),
-            onTap: () {
-              Navigator.pushNamed(context, '/payments');
-            },
-          ),
+
+          // horizontalLine(MediaQuery.of(context).size.width),
+          // ListTile(
+          //   leading: Icon(Icons.notifications),
+          //   title: Text('Payments'),
+          //   onTap: () {
+          //     Navigator.pushNamed(context, '/payments');
+          //   },
+          // ),
           horizontalLine(MediaQuery.of(context).size.width),
           ListTile(
             leading: Icon(Icons.notifications),

@@ -1,4 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
+import 'package:flutter/services.dart';
+import 'package:matrimonial/services/auth_service.dart';
+
+bool admin = false;
+var number;
+getAdmin() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  admin = prefs.getBool('isAdmin');
+}
+
+getPhone(email) {
+  print(getPhoneno(email));
+}
 
 Widget personal(profile) {
   return Padding(
@@ -62,14 +77,14 @@ Widget personal(profile) {
                   Flexible(
                     flex: 1,
                     child: ListTile(
-                      title: Text('Height'),
-                      subtitle: Text(profile['Height']),
+                      title: Text('Height(feet)'),
+                      subtitle: Text(profile['Height'].toString()),
                     ),
                   ),
                   Flexible(
                     flex: 1,
                     child: ListTile(
-                      title: Text('Weight'),
+                      title: Text('Weight(kg)'),
                       subtitle: Text(profile['Weight'].toString()),
                     ),
                   ),
@@ -77,7 +92,7 @@ Widget personal(profile) {
                     flex: 2,
                     child: ListTile(
                       title: Text('Complexion'),
-                      subtitle: Text(profile['Complexion']),
+                      subtitle: Text(profile['Complexion'].toString()),
                     ),
                   ),
                 ],
@@ -88,9 +103,11 @@ Widget personal(profile) {
                     flex: 1,
                     child: ListTile(
                       title: Text('Address'),
-                      subtitle: Text(profile['City'] +
+                      subtitle: Text(profile['Address'] +
                           ',' +
-                          profile['State'] +
+                          profile['City'] +
+                          ',' +
+                          profile['State'].toUpperCase() +
                           ',' +
                           profile['Pincode'].toString()),
                     ),
@@ -141,13 +158,13 @@ Widget education(profile) {
                     flex: 2,
                     child: ListTile(
                       title: Text('Jobtype'),
-                      subtitle: Text(profile['Jobtype']),
+                      subtitle: Text(profile['Jobtype'].toString()),
                     ),
                   ),
                   Flexible(
                     flex: 2,
                     child: ListTile(
-                      title: Text('Salary'),
+                      title: Text('Salary(per annum)'),
                       subtitle: Text(profile['Salary'].toString()),
                     ),
                   ),
@@ -160,23 +177,23 @@ Widget education(profile) {
                   ),
                 ],
               ),
-              Row(
-                children: <Widget>[
-                  Flexible(
-                    flex: 3,
-                    child: ListTile(
-                      title: Text('Church Name & Address'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(profile['Church Name']),
-                          Text(profile['Church Address'])
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: <Widget>[
+              //     Flexible(
+              //       flex: 3,
+              //       child: ListTile(
+              //         title: Text('Church Name & Address'),
+              //         subtitle: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: <Widget>[
+              //             Text(profile['Church Name']),
+              //             Text(profile['Church Address'])
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               Row(
                 children: <Widget>[
                   Flexible(
@@ -194,11 +211,85 @@ Widget education(profile) {
       ));
 }
 
-// var keys2 = [
-//   'Address',
-//   'City',
-//   'State',
-// ];
+Widget contact(profile) {
+  getAdmin();
+  getPhone(profile['Email']);
+  return admin
+      ? FutureBuilder(
+          future: getPhoneno(profile['Email']),
+          builder: (context, snapshot) {
+            return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Contact Information:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Card(
+                        child: Column(
+                      children: <Widget>[
+                        Row(
+                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                flex: 3,
+                                child: ListTile(
+                                  title: Text('Mobile No.'),
+                                  subtitle: Text(profile['Mobile'].toString()),
+                                ),
+                              ),
+                            ]),
+                        Row(
+                          children: <Widget>[
+                            Flexible(
+                              flex: 1,
+                              child: ListTile(
+                                title: Text('Email'),
+                                subtitle: Text(profile['Email'].toString()),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Flexible(
+                              flex: 3,
+                              child: ListTile(
+                                title: Text('Church Name & Address'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(profile['Church Name']),
+                                    Text(profile['Church Address'])
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Center(
+                                child: RaisedButton(
+                              child: Text('Send Contact Details'),
+                              onPressed: () {
+                                FlutterOpenWhatsapp.sendSingleMessage(
+                                    "123", "Hello");
+                              },
+                            ))
+                          ],
+                        )
+                      ],
+                    ))
+                  ],
+                ));
+          },
+        )
+      : Text('');
+}
 
 // var keys3 = ['Education', 'Profession', 'Jobtype', 'Status'];
 // var keys4 = [

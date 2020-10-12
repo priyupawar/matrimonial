@@ -3,7 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:matrimonial/services/auth_service.dart';
 
 onSubmit(value, navigator, context, formkey) {
-  // print(value);
+  print(value);
   if (navigator == 'update_home') {
     if (formkey.currentState.validate()) {
       updateUser(value['Email'], value, context);
@@ -25,9 +25,11 @@ onSubmit(value, navigator, context, formkey) {
       }
     }
   } else {
-    updateUser(value['Email'], value, context);
-    Fluttertoast.showToast(
-        msg: 'Profile Updated', toastLength: Toast.LENGTH_LONG);
+    if (formkey.currentState.validate()) {
+      updateUser(value['Email'], value, context);
+      Fluttertoast.showToast(
+          msg: 'Profile Updated', toastLength: Toast.LENGTH_LONG);
+    }
   }
 }
 

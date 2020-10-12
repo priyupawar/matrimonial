@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:matrimonial/main.dart';
 import 'package:matrimonial/profile.dart';
 //import 'package:myproject/authform.dart';
 //import 'package:page_transition/page_transition.dart';
@@ -16,8 +17,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  static const routeName = '/splashscreen';
   @override
   void initState() {
+    setCurrentRoute(routeName);
     super.initState();
     Timer(
         Duration(seconds: 3),
@@ -49,9 +52,9 @@ class _SplashScreenState extends State<SplashScreen> {
                       0.9,
                     ],
                     colors: [
+                      Colors.deepPurple,
+                      Colors.deepPurpleAccent,
                       Colors.white,
-                      Colors.redAccent,
-                      Colors.red,
                     ]),
                 borderRadius: BorderRadius.circular(6.0),
                 boxShadow: [
@@ -85,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           Text(
                             'Christi Jeevan Sathi',
                             style: TextStyle(
-                              color: Colors.red,
+                              color: Colors.white,
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
@@ -94,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           Text(
                             'Suchak Kendra',
                             style: TextStyle(
-                              color: Colors.red,
+                              color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,

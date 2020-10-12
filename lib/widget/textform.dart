@@ -70,6 +70,7 @@ class _TextBoxState extends State<TextBox> {
           onChanged: (String value) {
             setState(() {
               name = value;
+
               widget.values.update(widget.label, (v) {
                 return name;
               });

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:matrimonial/main.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 import 'package:flutter_upi/flutter_upi.dart';
 
@@ -13,6 +14,8 @@ final CreditCard testCard = CreditCard(
 Future _initiateTransaction;
 
 class Payments extends StatefulWidget {
+  final profile;
+  Payments(this.profile);
   @override
   _PaymentsState createState() => _PaymentsState();
 }
@@ -21,8 +24,10 @@ class _PaymentsState extends State<Payments> {
   Source _source;
   Token _paymentToken;
   PaymentMethod _paymentMethod;
+  static const routeName = '/payments';
   @override
   initState() {
+    setCurrentRoute(routeName);
     super.initState();
 
     StripePayment.setOptions(StripeOptions(
@@ -64,51 +69,57 @@ class _PaymentsState extends State<Payments> {
   }
 
   Future initiatePayment(String app) async {
-    String response = await FlutterUpi.initiateTransaction(
-        app: app,
-        pa: "kalawatipawar30@oksbi",
-        pn: "Priyanka Pawar",
-        tr: "TR1234",
-        tn: "This is a test transaction",
-        am: "1.00",
-        cu: "INR",
-        url: "https://www.google.com");
-    print(response);
-    switch (response) {
-      case 'invalid_params':
-        Fluttertoast.showToast(
-            msg: 'Request parameters are wrong',
-            toastLength: Toast.LENGTH_LONG);
-        break;
-      case 'app_not_installed':
-        Fluttertoast.showToast(
-            msg: 'Application not Installed', toastLength: Toast.LENGTH_LONG);
-        break;
-      case 'user_canceled':
-        Fluttertoast.showToast(
-            msg: 'Payment Cancled', toastLength: Toast.LENGTH_LONG);
-        break;
-      case 'null_response':
-        Fluttertoast.showToast(
-            msg: 'No Data Received', toastLength: Toast.LENGTH_LONG);
-        break;
-      default:
-        {
-          FlutterUpiResponse flutterUpiResponse = FlutterUpiResponse(response);
-          print(flutterUpiResponse.Status);
-          if (flutterUpiResponse.Status == 'FAILURE' ||
-              flutterUpiResponse.Status == 'Failed') {
-            Fluttertoast.showToast(
-                msg: 'Payment Failed.Please try again',
-                toastLength: Toast.LENGTH_LONG);
-          } else {
-            Fluttertoast.showToast(
-                msg: 'Payment Successfull', toastLength: Toast.LENGTH_LONG);
-          }
-        }
-    }
+    Fluttertoast.showToast(
+        msg: 'Payment Successfull', toastLength: Toast.LENGTH_LONG);
+    Navigator.pushReplacementNamed(context, '/infotabs',
+        arguments: widget.profile);
+    // String response = await FlutterUpi.initiateTransaction(
+    //     app: app,
+    //     pa: "contactpriyanka.pawar@oksbi",
+    //     pn: "Priyanka Pawar",
+    //     tr: "TR1234",
+    //     tn: "This is a test transaction",
+    //     am: "1.00",
+    //     cu: "INR",
+    //     url: "https://www.google.com");
+    // print(response);
+    // switch (response) {
+    //   case 'invalid_params':
+    //     Fluttertoast.showToast(
+    //         msg: 'Request parameters are wrong',
+    //         toastLength: Toast.LENGTH_LONG);
+    //     break;
+    //   case 'app_not_installed':
+    //     Fluttertoast.showToast(
+    //         msg: 'Application not Installed', toastLength: Toast.LENGTH_LONG);
+    //     break;
+    //   case 'user_canceled':
+    //     Fluttertoast.showToast(
+    //         msg: 'Payment Cancled', toastLength: Toast.LENGTH_LONG);
+    //     break;
+    //   case 'null_response':
+    //     Fluttertoast.showToast(
+    //         msg: 'No Data Received', toastLength: Toast.LENGTH_LONG);
+    //     break;
+    //   default:
+    //     {
+    //       FlutterUpiResponse flutterUpiResponse = FlutterUpiResponse(response);
+    //       print(flutterUpiResponse.Status);
+    //       if (flutterUpiResponse.Status == 'FAILURE' ||
+    //           flutterUpiResponse.Status == 'Failed') {
+    //         Fluttertoast.showToast(
+    //             msg: 'Payment Failed.Please try again',
+    //             toastLength: Toast.LENGTH_LONG);
+    //       } else {
+    //         Fluttertoast.showToast(
+    //             msg: 'Payment Successfull', toastLength: Toast.LENGTH_LONG);
+    //         Navigator.pushReplacementNamed(context, '/infotabs',
+    //             arguments: widget.profile);
+    //      }
+    ///    }
+    //  }
 
-    return response;
+    //return response;
   }
 
   @override

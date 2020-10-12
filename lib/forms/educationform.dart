@@ -6,8 +6,8 @@ TextEditingController _education;
 TextEditingController _profesion;
 TextEditingController _salary;
 int _groupValue = -1;
-List jobtype = ['Gov.', 'Non Gov.', 'Business'];
-String jobvalue;
+List jobtype = ['Gov.', 'Non Gov.', 'Business', 'Other'];
+String jobvalue = 'Other';
 GlobalKey<FormState> _userKey2 = GlobalKey<FormState>();
 TextInputType textinput = TextInputType.text;
 
@@ -24,17 +24,18 @@ class _EducationFormState extends State<EducationForm> {
   @override
   void initState() {
     setState(() {
+      if (widget.profile['Jobtype'] != '') {
+        jobvalue = widget.profile['Jobtype'];
+      }
       values = {
         'Email': widget.profile['Email'],
         'Education': widget.profile['Education'],
         'Profession': widget.profile['Profession'],
-        'Jobtype': widget.profile['Jobtype'],
-        'Salary': widget.profile['Salary'].toString(),
+        'Jobtype': jobvalue,
+        'Salary(per annum)': widget.profile['Salary(per annum)'],
       };
+      // print(values);
     });
-    if (widget.profile['Jobtype'] != '') {
-      jobvalue = widget.profile['Jobtype'];
-    }
 
     super.initState();
   }
@@ -102,8 +103,14 @@ class _EducationFormState extends State<EducationForm> {
                     ),
                     TextBox(_profesion, 'Profession', 'text',
                         TextInputType.text, values, 1, values['Profession']),
-                    TextBox(_salary, 'Salary', 'text', TextInputType.number,
-                        values, 1, values['Salary'].toString()),
+                    TextBox(
+                        _salary,
+                        'Salary(per annum)',
+                        'text',
+                        TextInputType.text,
+                        values,
+                        1,
+                        values['Salary(per annum)']),
                     ButtonForm('Submit', '', values, _userKey2)
                   ],
                 ))));

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:matrimonial/forms/infotabs.dart';
+import 'package:matrimonial/main.dart';
 
 Map user = {
   "Name": '',
@@ -42,6 +43,13 @@ class AddProfile extends StatefulWidget {
 }
 
 class _AddProfileState extends State<AddProfile> {
+  static const routeName = '/addprofile';
+  @override
+  void initState() {
+    setCurrentRoute(routeName);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

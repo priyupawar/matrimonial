@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:matrimonial/forms/login.dart';
 import 'package:matrimonial/forms/register.dart';
+import 'package:matrimonial/main.dart';
 import 'package:matrimonial/profile.dart';
 import 'package:matrimonial/services/auth_service.dart';
 import 'package:matrimonial/widget/horizontalline.dart';
@@ -18,8 +19,10 @@ class Authform extends StatefulWidget {
 }
 
 class _AuthformState extends State<Authform> {
+  static const routeName = '/';
   @override
   void initState() {
+    setCurrentRoute(routeName);
     super.initState();
     setState(() {
       body = LoginForm();
@@ -87,7 +90,7 @@ class _AuthformState extends State<Authform> {
                           borderRadius: BorderRadius.all(Radius.circular(40)),
                         ),
                         onPressed: () {
-                          // siginwithfacebook(context);
+                          siginwithfacebook(context);
                         },
                       ),
                     ),

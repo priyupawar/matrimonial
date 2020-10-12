@@ -129,7 +129,8 @@ class _RegisterFormState extends State<RegisterForm> {
                               controller: _pass,
                               obscureText: _obscureText,
                               validator: (value) {
-                                if (value.length != 8) {
+                                if (value.length < 8) {
+                                  print(value.length);
                                   return 'Password must be at least 8 characters.';
                                 }
 
@@ -137,6 +138,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               },
                               onChanged: (String value) {
                                 setState(() {
+                                  print(value.length);
                                   pass = value;
                                 });
                               },
@@ -281,14 +283,14 @@ class _RegisterFormState extends State<RegisterForm> {
                                             "Address": '',
                                             "City": '',
                                             "State": '',
-                                            "Pincode": 0,
+                                            "Pincode": '',
                                             "Status": '',
                                             "Education": '',
                                             "Jobtype": '',
                                             "Job": '',
-                                            "Salary": 0,
-                                            "Height": '',
-                                            "Weight": 0,
+                                            "Salary(per annum)": '',
+                                            "Height(in feet)": '',
+                                            "Weight(in kg)": '',
                                             "Complexion": '',
                                             "Native": '',
                                             "Church Name": '',
@@ -296,6 +298,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                             "Resident": '',
                                             "Expectation": '',
                                             "Mother Tounge": '',
+                                            "Profession": '',
                                             "image1":
                                                 'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
                                             "image2":
@@ -303,6 +306,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                             "image3":
                                                 'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
                                             "Bio Headline": '',
+                                            "About Yourself": '',
                                             "Age": '',
                                             "Gender": ''
                                           },

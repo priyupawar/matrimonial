@@ -17,9 +17,9 @@ TextEditingController _bio;
 TextEditingController _age;
 bool genderpresent = false;
 String agevalue;
-List status = ['UnMarried', 'Divorce'];
+List status = ['Single', 'Divorce'];
 List gender = ['Male', 'Female'];
-String martialstatus = 'UnMarried';
+String martialstatus = 'Single';
 String gendervalue = 'Male';
 String url1;
 String url2;
@@ -40,6 +40,18 @@ class _UserFormState extends State<UserForm> {
   @override
   void initState() {
     setState(() {
+      print(widget.profile['Gender']);
+      if (widget.profile['Status'] != '') {
+        martialstatus = widget.profile['Status'];
+      } else {
+        martialstatus = 'Single';
+      }
+      if (widget.profile['Gender'] != '') {
+        gendervalue = widget.profile['Gender'];
+        genderpresent = true;
+      } else {
+        gendervalue = 'Male';
+      }
       values = {
         'Name': widget.profile['Name'],
         'DOB': widget.profile['DOB'],
@@ -49,24 +61,19 @@ class _UserFormState extends State<UserForm> {
         'City': widget.profile['City'],
         'State': widget.profile['State'],
         'Pincode': widget.profile['Pincode'].toString(),
-        'Status': widget.profile['Status'],
+        'Status': martialstatus,
         "image1": widget.profile['image1'],
         "image2": widget.profile['image2'],
         "image3": widget.profile['image3'],
         "About Yourself": widget.profile['About Yourself'],
         "Hobbies": widget.profile['Hobbies'],
         "Bio Headline": widget.profile['Bio Headline'],
-        "Age": widget.profile['Age'].toString(),
-        "Gender": widget.profile['Gender'],
+        "Age": widget.profile['Age'],
+        "Gender": gendervalue,
+        // "Height": widget.profile['Height'].toString(),
+        // "Weight": widget.profile['Weight'].toString()
       };
     });
-    if (widget.profile['Status'] != '') {
-      martialstatus = widget.profile['Status'];
-    }
-    if (widget.profile['Gender'] != '') {
-      gendervalue = widget.profile['Gender'];
-      genderpresent = true;
-    }
 
     super.initState();
   }

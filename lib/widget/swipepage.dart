@@ -5,11 +5,12 @@ import 'package:matrimonial/widget/swiper_pagination.dart';
 import 'package:matrimonial/forms/searchprofile.dart';
 
 final SwiperController _swiperController = SwiperController();
-final int _pageCount = 2;
+final int _pageCount = 3;
 int _currentIndex = 0;
 
 class SwiperPage extends StatefulWidget {
   final profile;
+
   SwiperPage(this.profile);
   @override
   _SwiperPageState createState() => _SwiperPageState();
@@ -25,7 +26,7 @@ class _SwiperPageState extends State<SwiperPage> {
     List<Widget> content = [
       personal(profile),
       education(profile),
-      // personal(profile)
+      contact(profile)
     ];
 
     return Column(

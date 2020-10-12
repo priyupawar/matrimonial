@@ -33,17 +33,44 @@ Future addToShortlist(data) async {
 Future getShortlist() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var email = prefs.getString('email');
-  var profileList = <DocumentSnapshot>[];
+  //var profileList = <DocumentSnapshot>[];
   return fire.collection('shortlist').document(email).get();
 }
 
+getAllShortlist() {
+  //SharedPreferences prefs = await SharedPreferences.getInstance();
+  // var email = prefs.getString('email');
+  // var profileList = <DocumentSnapshot>[];
+  // print(fire.collection('shortlist').document());
+  List profiles = [];
+  return fire.collection('shortlist').getDocuments().then((value) {
+    return value.documents;
+    //return fire.collection('shortlist').document(email).get();
+
+    // for (int i = 0; i <= value.documents.length; i++) {
+    //   return fire
+    //       .collection('users')
+    //       .document(value.documents[i].documentID)
+    //       .get();
+    // }
+  });
+}
+
 Future getProfile(profiles) async {
-  print(profiles);
+  // print(profiles);
 
   return fire
       .collection('users')
       .where('Email', whereIn: profiles)
       .getDocuments();
+}
+
+getSpecificProfile(email) {
+  // print(profiles);
+
+  return fire.collection('users').document(email).get().then((value) {
+    return value.data;
+  });
 }
 
 Future removeProfile(profile) async {

@@ -42,4 +42,14 @@ class LocalStorage {
     filename.deleteSync();
     print('file deleted');
   }
+
+  void addToken(tkn, Directory dir, File jsonFile, String fileName) {
+    writeToFile('token', tkn, dir, jsonFile, fileName);
+  }
+
+  void addNotification(List notify, Map notification, Directory dir,
+      File jsonFile, String fileName) {
+    notify.add(notification);
+    writeToFile('message', notify, dir, jsonFile, fileName);
+  }
 }

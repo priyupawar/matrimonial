@@ -6,7 +6,7 @@ import 'package:matrimonial/services/auth_service.dart';
 final _loginKey = GlobalKey<FormState>();
 final _name = TextEditingController();
 final _pass = TextEditingController();
-final _mobileno = TextEditingController();
+final _email = TextEditingController();
 String name;
 String pass;
 bool remember = false;
@@ -15,6 +15,7 @@ String fileName;
 String filepath;
 String verificationId;
 List<String> people = [];
+List res;
 
 class LoginForm extends StatefulWidget {
   // final scaffoldkey;
@@ -251,7 +252,6 @@ class _LoginFormState extends State<LoginForm> {
                               padding: EdgeInsets.all(8),
                               child: GestureDetector(
                                 onTap: () {
-                                  //  otp.sendOtp('9004278382');
                                   // final snackBar = SnackBar(
                                   //   content:
                                   //       Text('Please contact System Administrator'),
@@ -266,6 +266,8 @@ class _LoginFormState extends State<LoginForm> {
                                   // Fluttertoast.showToast(
                                   //     msg: 'Please contact System Administrator',
                                   //     toastLength: Toast.LENGTH_LONG);
+                                  //getConfig();
+                                  // sendOtp('9004278382', context);
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
@@ -274,7 +276,7 @@ class _LoginFormState extends State<LoginForm> {
                                           // shape: RoundedRectangleBorder(
                                           //     borderRadius: BorderRadius.circular(20)),
                                           title: Text(
-                                            'Enter Your Registered Mobile No.',
+                                            'Enter Your Registered Email Id.',
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold),
@@ -289,9 +291,9 @@ class _LoginFormState extends State<LoginForm> {
                                                 Expanded(
                                                     // width: 200,
                                                     child: TextField(
-                                                  controller: _mobileno,
+                                                  controller: _email,
                                                   decoration: InputDecoration(
-                                                      hintText: 'Mobile No.'),
+                                                      hintText: 'Email Id.'),
                                                 )),
                                               ],
                                             ),
@@ -306,8 +308,8 @@ class _LoginFormState extends State<LoginForm> {
                                                         .accentColor),
                                               ),
                                               onPressed: () {
-                                                checkMobile(
-                                                    _mobileno.text, context);
+                                                checkEmail(
+                                                    _email.text, context);
                                                 // Navigator.pop(context);
                                                 // Navigator.push(
                                                 //     context,

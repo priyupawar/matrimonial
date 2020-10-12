@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:matrimonial/main.dart';
 import 'package:matrimonial/widget/swipeablelist.dart';
 
 final List<Map> schoolLists = [
@@ -80,8 +81,10 @@ class ShortList extends StatefulWidget {
 }
 
 class _ShortListState extends State<ShortList> {
+  static const routeName = '/shortlist';
   @override
   void initState() {
+    setCurrentRoute(routeName);
     // schoolLists.insert(0, {"name": 'Xaviers International', 'location': '234 Road Kathmandu, Nepal', 'type': 'Higher Secondary School', 'logoText': 'https://cdn.pixabay.com/photo/2017/01/31/13/14/animal-2023924_960_720.png'});
 
     super.initState();

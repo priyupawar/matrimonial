@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:matrimonial/forms/educationform.dart';
 import 'package:matrimonial/forms/otherform.dart';
 import 'package:matrimonial/forms/userform.dart';
+import 'package:matrimonial/main.dart';
 
 class InfoTabs extends StatefulWidget {
   final profile;
@@ -12,6 +13,7 @@ class InfoTabs extends StatefulWidget {
 }
 
 class _InfoTabsState extends State<InfoTabs> {
+  static const routeName = '/infotabs';
   int _currentTabIndex = 0;
   static const _kBottmonNavBarItems = <BottomNavigationBarItem>[
     BottomNavigationBarItem(icon: Icon(Icons.person), title: Text('Personal')),
@@ -20,6 +22,12 @@ class _InfoTabsState extends State<InfoTabs> {
     BottomNavigationBarItem(
         icon: Icon(Icons.account_balance), title: Text('Other')),
   ];
+
+  @override
+  void initState() {
+    setCurrentRoute(routeName);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

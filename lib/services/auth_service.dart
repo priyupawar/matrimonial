@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'dart:math';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:matrimonial/localstorage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 //String phoneNumber;
 String smsCode;
@@ -24,7 +27,9 @@ final _otp = TextEditingController();
 String fileName;
 String filepath;
 final facebookLogin = FacebookLogin();
-
+String authKey;
+String senderId;
+int otp;
 void loginUser(email, pass, remember, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool('isLoggedIn', true);
@@ -32,14 +37,16 @@ void loginUser(email, pass, remember, context) async {
   prefs.setString('password', pass);
   prefs.setString('email', email);
   prefs.setBool('remember', remember);
-  print(email);
+
   Fluttertoast.showToast(
       msg: 'Login Sucessfully', toastLength: Toast.LENGTH_LONG);
   if (email == 'admin@gmail.com') {
     prefs.setBool('isAdmin', true);
+    prefs.setString('curRoute', '/admin');
     Navigator.pushReplacementNamed(context, '/admin', arguments: email);
   } else {
     prefs.setBool('isAdmin', false);
+    prefs.setString('curRoute', '/splashscreen');
     Navigator.pushReplacementNamed(context, '/splashscreen', arguments: email);
   }
 }
@@ -60,7 +67,7 @@ void registerUser(profile, remember, context) async {
     Navigator.pushReplacementNamed(context, '/admin',
         arguments: profile['Email']);
   } else {
-    Navigator.pushReplacementNamed(context, '/infotabs', arguments: profile);
+    Navigator.pushReplacementNamed(context, '/payments', arguments: profile);
   }
 }
 
@@ -72,50 +79,79 @@ Widget snackbar(msg) {
 }
 
 Future login(email, password, remember, context) async {
-  await _auth
-      .signInWithEmailAndPassword(email: email, password: password)
-      .then((user) => {
-            // _fcm.unsubscribeFromTopic('notification'),
-            loginUser(email, password, remember, context)
-          })
-      .catchError((onError) {
-    print(onError);
-    if (onError.code == 'ERROR_INVALID_EMAIL') {
-      Fluttertoast.showToast(
-          msg: 'Email Id is not Valid', toastLength: Toast.LENGTH_LONG);
+  try {
+    await _auth
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((user) => {
+              // _saveDeviceToken(email),
+              loginUser(email, password, remember, context)
+            });
+  } on PlatformException catch (e) {
+    print(e.code);
+    switch (e.code) {
+      case 'ERROR_INVALID_EMAIL':
+        Fluttertoast.showToast(
+            msg: 'Email Id is not Valid', toastLength: Toast.LENGTH_LONG);
+        break;
+
+      case 'ERROR_WRONG_PASSWORD':
+        Fluttertoast.showToast(
+            msg: 'Invalid Password', toastLength: Toast.LENGTH_LONG);
+        break;
+
+      case 'ERROR_TOO_MANY_REQUESTS':
+        Fluttertoast.showToast(
+            msg:
+                'Opps.. Too many unsuccessful login attempts. Please try again later. ',
+            toastLength: Toast.LENGTH_LONG);
+        break;
+
+      case 'ERROR_USER_NOT_FOUND':
+        Fluttertoast.showToast(
+            msg: 'User not found. Please register ',
+            toastLength: Toast.LENGTH_LONG);
+        break;
     }
-    if (onError.code == 'ERROR_WRONG_PASSWORD') {
-      Fluttertoast.showToast(
-          msg: 'Invalid Password', toastLength: Toast.LENGTH_LONG);
-    }
-    if (onError.code == 'ERROR_TOO_MANY_REQUESTS') {
-      Fluttertoast.showToast(
-          msg:
-              'Opps.. Too many unsuccessful login attempts. Please try again later. ',
-          toastLength: Toast.LENGTH_LONG);
-    }
-    if (onError.code == 'ERROR_USER_NOT_FOUND') {
-      Fluttertoast.showToast(
-          msg: 'User not found. Please register ',
-          toastLength: Toast.LENGTH_LONG);
-    }
+  } catch (onError) {
+    print(onError.code);
   }
-          // scaffoldkey.currentState
-          //     .showSnackBar(snackbar('Some error occured'))
-          );
 }
 
+// scaffoldkey.currentState
+//     .showSnackBar(snackbar('Some error occured'))
+
 Future register(Map profile, context, remember) async {
-  await _auth
-      .createUserWithEmailAndPassword(
-          email: profile['Email'], password: profile['Pass'])
-      .then((user) => {
-            _saveDeviceToken(profile['Email']),
-            addUser(profile, profile['Email'], context, remember)
-          })
-      .catchError((onError) => {print(onError)});
-  Fluttertoast.showToast(
-      msg: 'This may take few seconds...', toastLength: Toast.LENGTH_LONG);
+  // print(profile);
+  try {
+    await _auth
+        .createUserWithEmailAndPassword(
+            email: profile['Email'], password: profile['Pass'])
+        .then((user) => {
+              // print(user),
+              _saveDeviceToken(profile['Email']),
+
+              addUser(profile, profile['Email'], context, remember)
+            });
+  } on PlatformException catch (e) {
+    switch (e.code) {
+      case 'ERROR_INVALID_EMAIL':
+        Fluttertoast.showToast(
+            msg: 'Email Id is not valid.', toastLength: Toast.LENGTH_LONG);
+        break;
+
+      case 'ERROR_EMAIL_ALREADY_IN_USE':
+        Fluttertoast.showToast(
+            msg: 'Email Id already in use.', toastLength: Toast.LENGTH_LONG);
+        break;
+
+      case 'ERROR_WEAK_PASSWORD':
+        Fluttertoast.showToast(
+            msg: 'Password is not strong.', toastLength: Toast.LENGTH_LONG);
+        break;
+    }
+  } catch (onError) {
+    print(onError.code);
+  }
 }
 
 Future addUser(profile, email, context, remember) async {
@@ -214,6 +250,26 @@ filterData(age, city, type, gender) async {
   }
 }
 
+searchprofile(value) async {
+  return fire
+      .collection('users')
+      .where('Name', arrayContains: value)
+      .getDocuments()
+      .then((profiles) {
+    return profiles.documents;
+  });
+  // return profiles
+  //     .where(
+  //         (value) => value['Name'].toLowerCase().contains(value.toLowerCase()))
+  //     .toList();
+}
+
+getPhoneno(email) async {
+  DocumentSnapshot ds = await fire.collection('users').document(email).get();
+  return ds.data['Mobile'];
+  //print('get user');
+}
+
 Future updateUser(email, data, context) async {
   DocumentSnapshot ds = await fire.collection('users').document(email).get();
   if (ds.exists) {
@@ -252,54 +308,79 @@ Future siginwithgoogle(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('email', firebaseUser.email);
   prefs.setString('type', 'gmail');
+
+  prefs.setBool('isLoggedIn', true);
+  prefs.setString('type', 'normal');
+  _saveDeviceToken(firebaseUser.email);
   DocumentSnapshot ds =
       await fire.collection('users').document(firebaseUser.email).get();
   if (ds.exists) {
     Fluttertoast.showToast(
         msg: 'Login Sucessfully', toastLength: Toast.LENGTH_LONG);
-    Navigator.pushReplacementNamed(context, '/splashscreen',
-        arguments: firebaseUser.email);
+    if (firebaseUser.email == 'admin@gmail.com') {
+      prefs.setBool('isAdmin', true);
+      prefs.setString('curRoute', '/admin');
+      Navigator.pushReplacementNamed(context, '/admin',
+          arguments: firebaseUser.email);
+    } else {
+      prefs.setBool('isAdmin', false);
+      prefs.setString('curRoute', '/splashscreen');
+      Navigator.pushReplacementNamed(context, '/splashscreen',
+          arguments: firebaseUser.email);
+    }
+    // Navigator.pushReplacementNamed(context, '/splashscreen',
+    //     arguments: firebaseUser.email);
   } else {
     Fluttertoast.showToast(
         msg: 'Registered Sucessfully', toastLength: Toast.LENGTH_LONG);
-    Navigator.pushReplacementNamed(
-      context,
-      '/infotabs',
-      arguments: {
-        "Name": firebaseUser.displayName,
-        "Email": firebaseUser.email,
-        "Pass": '',
-        "Mobile": 0,
-        "DOB": '',
-        "Address": '',
-        "City": '',
-        "State": '',
-        "Pincode": 0,
-        "Status": '',
-        "Education": '',
-        "Jobtype": '',
-        "Job": '',
-        "Salary": 0,
-        "Height": '',
-        "Weight": 0,
-        "Complexion": '',
-        "Native": '',
-        "Church Name": '',
-        "Church Address": '',
-        "Resident": '',
-        "Expectation": '',
-        "Mother Tounge": '',
-        "image1":
-            'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
-        "image2":
-            'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
-        "image3":
-            'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
-        "Bio Headline": '',
-        "Age": '',
-        "Gender": ''
-      },
-    );
+    if (firebaseUser.email == 'admin@gmail.com') {
+      prefs.setBool('isAdmin', true);
+      prefs.setString('curRoute', '/admin');
+      Navigator.pushReplacementNamed(context, '/admin',
+          arguments: firebaseUser.email);
+    } else {
+      prefs.setBool('isAdmin', false);
+      prefs.setString('curRoute', '/payments');
+
+      Navigator.pushReplacementNamed(
+        context,
+        '/payments',
+        arguments: {
+          "Name": firebaseUser.displayName,
+          "Email": firebaseUser.email,
+          "Pass": '',
+          "Mobile": 0,
+          "DOB": '',
+          "Address": '',
+          "City": '',
+          "State": '',
+          "Pincode": 0,
+          "Status": '',
+          "Education": '',
+          "Jobtype": '',
+          "Job": '',
+          "Salary": 0,
+          "Height": '',
+          "Weight": 0,
+          "Complexion": '',
+          "Native": '',
+          "Church Name": '',
+          "Church Address": '',
+          "Resident": '',
+          "Expectation": '',
+          "Mother Tounge": '',
+          "image1":
+              'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
+          "image2":
+              'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
+          "image3":
+              'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b',
+          "Bio Headline": '',
+          "Age": '',
+          "Gender": ''
+        },
+      );
+    }
   }
 }
 
@@ -330,7 +411,7 @@ Future<FirebaseUser> firebaseAuthWithFacebook(context,
         msg: 'Registered Successfully', toastLength: Toast.LENGTH_LONG);
     Navigator.pushReplacementNamed(
       context,
-      '/infotabs',
+      '/payments',
       arguments: {
         "Name": firebaseUser.user.displayName,
         "Email": firebaseUser.user.email,
@@ -392,19 +473,18 @@ Future siginwithfacebook(context) async {
   }
 }
 
-Future checkMobile(phonenumber, context) async {
-  print(phonenumber);
+Future checkEmail(email, context) async {
   fire
       .collection('users')
-      .where('Mobile', isEqualTo: phonenumber)
+      .where('Email', isEqualTo: email)
       .getDocuments()
       .then((result) {
     if (result.documents.length > 0) {
       // Navigator.pop(context);
       Fluttertoast.showToast(
-          msg: 'OTP has been sent to your registered Mobile Number',
+          msg: 'OTP has been sent to your registered Email Id',
           toastLength: Toast.LENGTH_LONG);
-      sendOtp('+91' + phonenumber, context);
+      sendOtp(email, context);
     } else {
       print(result.documents);
       Fluttertoast.showToast(
@@ -418,33 +498,52 @@ Future checkMobile(phonenumber, context) async {
 // }
 }
 
-Future<void> sendOtp(phonenumber, context) async {
-  final PhoneCodeAutoRetrievalTimeout autoretrieve = (String verId) {
-    verificationCode = verId;
-  };
-  final PhoneVerificationCompleted verified = (AuthCredential user) {
-    print('Verified');
-  };
-  final PhoneVerificationFailed verifiacationfailed =
-      (AuthException exception) {
-    Fluttertoast.showToast(
-        msg: exception.message, toastLength: Toast.LENGTH_LONG);
-    print('${exception.message}');
-  };
-  final PhoneCodeSent codeSent = (String verId, [int foreceCodeResend]) {
-    verificationCode = verId;
-    print('code Sent');
-    showdialouge(context);
-  };
-  _auth.verifyPhoneNumber(
-      phoneNumber: phonenumber,
-      timeout: const Duration(seconds: 5),
-      verificationCompleted: verified,
-      verificationFailed: verifiacationfailed,
-      codeSent: codeSent,
-      codeAutoRetrievalTimeout: autoretrieve);
+Future getConfig() async {
+  var response = await http.get('http://167.114.145.37:3000/GetConfig');
+
+  //print(response);
+  return response.body;
 }
 
+Future<void> sendOtp(email, context) async {
+  await _auth.sendPasswordResetEmail(email: email);
+  Navigator.pop(context);
+  // getConfig().then((onValue) {
+  //   otp = Random().nextInt(8000) + 1000;
+  //   print(otp);
+  //   var data = jsonDecode(onValue);
+  //   authKey = data[0]['AuthKey'];
+  //   senderId = data[0]['SenderID'];
+  //   sendMsg(phonenumber, 'Your OTP is ' '{$otp}', context);
+  // });
+
+  // final PhoneCodeAutoRetrievalTimeout autoretrieve = (String verId) {
+  //   verificationCode = verId;
+  // };
+  // final PhoneVerificationCompleted verified = (AuthCredential user) {
+  //   print('Verified');
+  // };
+  // final PhoneVerificationFailed verifiacationfailed =
+  //     (AuthException exception) {
+  //   Fluttertoast.showToast(
+  //       msg: exception.message, toastLength: Toast.LENGTH_LONG);
+  //   print('${exception.message}');
+  // };
+  // final PhoneCodeSent codeSent = (String verId, [int foreceCodeResend]) {
+  //   verificationCode = verId;
+  //   print('code Sent');
+  //   showdialouge(context);
+  // };
+  // _auth.verifyPhoneNumber(
+  //     phoneNumber: phonenumber,
+  //     timeout: const Duration(seconds: 5),
+  //     verificationCompleted: verified,
+  //     verificationFailed: verifiacationfailed,
+  //     codeSent: codeSent,
+  //     codeAutoRetrievalTimeout: autoretrieve);
+}
+
+//
 Future showdialouge(context) {
   return showDialog(
       context: context,
@@ -480,7 +579,7 @@ Future showdialouge(context) {
                     fontSize: 18, color: Theme.of(context).accentColor),
               ),
               onPressed: () {
-                if (verificationCode == _otp.text) {
+                if (int.parse(_otp.text) == otp) {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, '/resetpass');
                 } else {
@@ -509,15 +608,16 @@ Future updatepass(email, password) async {
 _saveDeviceToken(userid) async {
   String fcmtoken = await _fcm.getToken();
   if (fcmtoken != null) {
-    var tokens = fire.collection('user_tokens').document(fcmtoken);
+    var tokens = fire.collection('users_token').document(fcmtoken);
     await tokens.setData({
       'token': fcmtoken,
       'createdAt': FieldValue.serverTimestamp(), // optional
       'platform': Platform.operatingSystem,
       'user': userid
     }).then((onValue) {
-      // _fcm.subscribeToTopic('notification');
+      _fcm.subscribeToTopic('notification');
       print('token created');
+      createFile({'token': fcmtoken}, userid);
     });
   }
 }
@@ -537,13 +637,78 @@ Future createFile(data, userid) async {
     //       .writeToFile(data['title'], data['body'], dir, jsonFile, fileName);
     //
     // } else {
-    LocalStorage()
-        .writeToFile(data['title'], data['body'], dir, jsonFile, fileName);
+    // LocalStorage()
+    //     .writeToFile(data['title'], data['body'], dir, jsonFile, fileName);
+    //var key = data.keys.toList();
+    // for (int i = 0; i < key.length; i++) {
+    //   var value = data[key[i]];
+    //   LocalStorage().writeToFile(key[i], value, dir, jsonFile, fileName);
+    // }
+    LocalStorage().writeToFile('token', data['token'], dir, jsonFile, fileName);
+    LocalStorage().writeToFile('message', [], dir, jsonFile, fileName);
     fileContent = jsonDecode(jsonFile.readAsStringSync());
-    print(fileContent);
+
+    //print(fileContent);
+    // print(fileContent);
 
     // }
   }).then((onValue) {
     return fileContent.length;
   });
 }
+
+Future updateFile(data, userid) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  getApplicationDocumentsDirectory().then((Directory directory) {
+    dir = directory;
+    fileName = userid;
+    jsonFile = new File(dir.path + "/" + fileName);
+    //print(jsonFile);
+    filepath = dir.path + "/" + fileName;
+    prefs.setString('file', filepath);
+    fileExists = jsonFile.existsSync();
+
+    var key = data.keys.toList();
+    for (int i = 0; i < key.length; i++) {
+      LocalStorage().addNotification(
+          fileContent[key[i]], data[key[i]], dir, jsonFile, fileName);
+    }
+    fileContent = jsonDecode(jsonFile.readAsStringSync());
+
+    print(fileContent);
+  });
+}
+//Future sendMsg(msg, mobile, context) async {
+//   var response = await http.get(
+//       'http://mysms.msgclub.net/rest/services/sendSMS/sendGroupSms?AUTH_KEY=' +
+//           authKey +
+//           '&message=' +
+//           msg +
+//           '&senderId=' +
+//           senderId +
+//           '&routeId=1&mobileNos=' +
+//           mobile.toString() +
+//           '&smsContentType=english');
+//   var res = jsonDecode(response.body);
+//   print(res);
+//   if (res['responseCode'] == "3001") {
+//     print('msg sent');
+//     // final snackBar = SnackBar(
+//     //   content: Text('Message Sent'),
+//     // );
+//     // _scaffoldKey.currentState.showSnackBar(snackBar);
+//   } else {
+//     showdialouge(context);
+//     print('msg not sent');
+//     print(otp);
+//     // final snackBar = SnackBar(
+//     //   content: Text('Message Not Sent'),
+//     // );
+//     // _scaffoldKey.currentState.showSnackBar(snackBar);
+//   }
+//   // final snackBar = SnackBar(
+//   //   content: Text('Message Sent(Testing)'),
+//   // );
+//   // _scaffoldKey.currentState.showSnackBar(snackBar);
+//   return 'sent';
+// }

@@ -14,7 +14,7 @@ TextEditingController _height;
 TextEditingController _weight;
 TextEditingController _complexion;
 TextEditingController _expectation;
-String residentvalue;
+String residentvalue = 'Own House';
 int id = 0;
 List resident = ['Own House', 'Flat', 'Rented'];
 TextInputType textinput = TextInputType.text;
@@ -33,21 +33,21 @@ class _OtherDetailsState extends State<OtherDetails> {
   @override
   void initState() {
     setState(() {
+      if (widget.profile['Resident'] != '') {
+        residentvalue = widget.profile['Resident'];
+      }
       values = {
         'Email': widget.profile['Email'],
         'Native Place': widget.profile['Native Place'],
         'Church Name': widget.profile['Church Name'],
         'Church Address': widget.profile['Church Address'],
-        'Resident': widget.profile['Resident'],
+        'Resident': residentvalue,
         'Mother Tounge': widget.profile['Mother Tounge'],
-        'Height': widget.profile['Height'],
-        'Weight': widget.profile['Weight'].toString(),
+        'Height(in feet)': widget.profile['Height(in feet)'],
+        'Weight(in kg)': widget.profile['Weight(in kg)'],
         'Complexion': widget.profile['Complexion'],
         'Expectation': widget.profile['Expectation']
       };
-      if (widget.profile['Resident'] != '') {
-        residentvalue = widget.profile['Resident'];
-      }
     });
 
     super.initState();
@@ -68,22 +68,22 @@ class _OtherDetailsState extends State<OtherDetails> {
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextBox(
                                 _height,
-                                'Height',
+                                'Height(in feet)',
                                 'text',
                                 TextInputType.text,
                                 values,
                                 1,
-                                values['Height'])),
+                                values['Height(in feet)'])),
                         Container(
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextBox(
                                 _weight,
-                                'Weight',
+                                'Weight(in kg)',
                                 'text',
-                                TextInputType.number,
+                                TextInputType.text,
                                 values,
                                 1,
-                                values['Weight'].toString())),
+                                values['Weight(in kg)'].toString())),
                         Container(
                             width: MediaQuery.of(context).size.width,
                             child: TextBox(

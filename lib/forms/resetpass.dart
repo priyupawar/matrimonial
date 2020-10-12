@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:matrimonial/main.dart';
 import 'package:matrimonial/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,8 +26,10 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPassword extends State<ResetPassword> {
+  static const routeName = '/resetpass';
   @override
   void initState() {
+    setCurrentRoute(routeName);
     // SharedPreferences.getInstance().then((SharedPreferences prefs) {
     //   _name.text = prefs.getString('email');
     // });

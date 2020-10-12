@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:matrimonial/forms/infotabs.dart';
 import 'package:matrimonial/forms/searchprofile.dart';
+import 'package:matrimonial/main.dart';
 import 'package:matrimonial/services/auth_service.dart';
 import 'package:matrimonial/widget/notifications.dart';
 import 'package:matrimonial/widget/list.dart';
@@ -12,6 +13,8 @@ import 'package:animated_floatactionbuttons/animated_floatactionbuttons.dart';
 import 'package:matrimonial/widget/checkboxform.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:matrimonial/widget/textform.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_admin/firebase_admin.dart';
 
 String image =
     'https://firebasestorage.googleapis.com/v0/b/matrimonial-7e828.appspot.com/o/profile_picture%2FIMG_20200129_180505_860.jpg?alt=media&token=8d0bece3-4abe-43e8-9ac5-8a2c4707866b';
@@ -31,6 +34,9 @@ TextEditingController _maxage;
 String type = '';
 int len = 0;
 Color iconColor = Colors.white;
+bool search = false;
+String textvalue;
+String searchby;
 
 class MainPageProfile extends StatefulWidget {
   final email;
@@ -42,8 +48,13 @@ class MainPageProfile extends StatefulWidget {
 
 class _MainPageProfileState extends State<MainPageProfile> {
   final FirebaseMessaging _fcm = FirebaseMessaging();
+  static const routeName = '/profile';
   @override
   void initState() {
+    setCurrentRoute(routeName);
+    type = '';
+    textvalue = '';
+    searchby = 'Name';
     checkboxvalue = {
       'Mumbai': 'false',
       'Pune': 'false',
@@ -53,100 +64,227 @@ class _MainPageProfileState extends State<MainPageProfile> {
     castevalue = {'Catholic': '', 'Protestian': '', 'Other': ''};
     agevalue = {'MinAge': '', 'MaxAge': ''};
     super.initState();
+    // _fcm.configure(onMessage: (Map<String, dynamic> message) async {
+    //   print(message['notification']['title']);
+    // });
+
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
-        //  print('onMessage ');
-        createFile({
-          'title': message['notification']['title'],
-          'body': message['notification']['body']
+        print('onMessage ');
+        print(message['notification']);
+        updateFile({
+          'message': {
+            message['notification']['title']: message['notification']['body']
+          }
         }, widget.email)
             .then((length) {
           setState(() {
             iconColor = Colors.red;
           });
 
-          // showDialog(
-          //     context: context,
-          //     builder: (BuildContext context) {
-          //       return AlertDialog(
-          //         content: ListTile(
-          //           title: Text(message['notification']['title']),
-          //           subtitle: Text(message['notification']['body']),
-          //         ),
-          //         actions: <Widget>[
-          //           FlatButton(
-          //             child: Text('Ok'),
-          //             onPressed: () => Navigator.of(context).pop(),
-          //           )
-          //         ],
-          //       );
-          //     });
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: ListTile(
+                    title: Text(message['notification']['title']),
+                    subtitle: Text(message['notification']['body']),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Ok'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  ],
+                );
+              });
         });
-        // print('length' + len.toString());
+        print('length' + len.toString());
       },
       onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        // TODO optional
+        updateFile({
+          'message': {
+            message['notification']['title']: message['notification']['body']
+          }
+        }, widget.email)
+            .then((length) {
+          setState(() {
+            iconColor = Colors.red;
+          });
+          print("onLaunch: $message");
+          //TODO optional
+        });
       },
       onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        // TODO optional
+        updateFile({
+          'message': {
+            message['notification']['title']: message['notification']['body'],
+          }
+        }, widget.email)
+            .then((length) {
+          setState(() {
+            iconColor = Colors.red;
+          });
+          print("onResume: $message");
+          // TODO optional
+        });
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // print('page refresh');
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Christi Jeevan Sathi'),
-          actions: <Widget>[
-            GestureDetector(
-                onTap: () {
-                  iconColor = Colors.white;
-                  Navigator.pushNamed(context, '/notification');
-                },
-                child: Padding(
-                    padding: EdgeInsets.only(right: 10, top: 10),
-                    child: Stack(
-                      children: <Widget>[
-                        Icon(
-                          Icons.notifications,
-                          size: 35,
-                          color: iconColor,
-                        ),
-                        // Container(
-                        //   child: Text(
-                        //     len.toString(),
-                        //     textAlign: TextAlign.center,
-                        //   ),
-                        //   constraints: BoxConstraints(
-                        //     minWidth: 14,
-                        //     minHeight: 14,
-                        //   ),
-                        //   decoration: BoxDecoration(
-                        //       borderRadius: BorderRadius.circular(10),
-                        //       color: Colors.red),
-                        // )
-                      ],
-                    ))),
-          ],
-        ),
-        floatingActionButton: AnimatedFloatingActionButton(
-            //Fab list
-            fabButtons: <Widget>[
-              float3(),
-              float1(profile),
-              float2(profile),
-            ],
-            colorStartAnimation: Colors.blue,
-            colorEndAnimation: Colors.red,
-            animatedIconData:
-                AnimatedIcons.search_ellipsis //To principal button
+      appBar: AppBar(
+        title: Text('Christi Jeevan Sathi'),
+        actions: <Widget>[
+          GestureDetector(
+              onTap: () {
+                iconColor = Colors.white;
+                Navigator.pushNamed(context, '/notification');
+              },
+              child: Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Stack(
+                    children: <Widget>[
+                      Icon(
+                        Icons.notifications,
+                        size: 30,
+                        color: iconColor,
+                      ),
+                      // Container(
+                      //   child: Text(
+                      //     len.toString(),
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      //   constraints: BoxConstraints(
+                      //     minWidth: 14,
+                      //     minHeight: 14,
+                      //   ),
+                      //   decoration: BoxDecoration(
+                      //       borderRadius: BorderRadius.circular(10),
+                      //       color: Colors.red),
+                      // )
+                    ],
+                  ))),
+          Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  search = !search;
+                });
+                // Navigator.pushNamed(context, '/searchprofile');
+              },
+              child: !search
+                  ? Icon(Icons.search, size: 30)
+                  : GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          search = !search;
+                          type = '';
+                        });
+                      },
+                      child: Padding(
+                          padding: EdgeInsets.only(top: 20, right: 10),
+                          child: Text(
+                            'Clear',
+                            style: TextStyle(fontSize: 15),
+                          ))),
             ),
-        drawer: Sidenav(widget.email, false),
-        body: buildList(widget.email, type, agevalue, citylist));
+          )
+        ],
+      ),
+      // floatingActionButton: AnimatedFloatingActionButton(
+      //     //Fab list
+      //     fabButtons: <Widget>[
+      //       float3(),
+      //       float1(profile),
+      //       float2(profile),
+      //     ],
+      //     colorStartAnimation: Colors.blue,
+      //     colorEndAnimation: Colors.red,
+      //     animatedIconData:
+      //         AnimatedIcons.search_ellipsis //To principal button
+      //     ),
+
+      drawer: Sidenav(widget.email, false),
+      body: Column(
+        children: <Widget>[
+          search
+              ? Card(
+                  elevation: 15,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  // color: Colors.grey.withOpacity(0),
+                  child: TextField(
+                    textAlign: TextAlign.start,
+                    decoration: InputDecoration(
+                        // contentPadding: EdgeInsets.all(10),
+                        hintStyle: TextStyle(fontSize: 18),
+                        hintText: 'Search By ' + searchby,
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: PopupMenuButton(
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              PopupMenuItem(
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        type = '';
+                                        searchby = 'Name';
+                                      });
+                                    },
+                                    child: ListTile(title: Text('By Name'))),
+                              ),
+                              // PopupMenuItem(
+                              //   child: GestureDetector(
+                              //       onTap: () {
+                              //         Navigator.pop(context);
+                              //         setState(() {
+                              //           type = '';
+                              //           searchby = 'Age';
+                              //         });
+                              //       },
+                              //       child: ListTile(title: Text('By Age'))),
+                              // ),
+                              PopupMenuItem(
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        type = '';
+                                        searchby = 'City';
+                                      });
+                                    },
+                                    child: ListTile(title: Text('By City'))),
+                              ),
+                            ];
+                          },
+                        ),
+                        enabledBorder:
+                            UnderlineInputBorder(borderSide: BorderSide.none),
+                        focusedBorder:
+                            UnderlineInputBorder(borderSide: BorderSide.none)),
+                    onChanged: (value) {
+                      setState(() {
+                        // buildList('', 'search', value, '');
+                        type = '';
+                        textvalue = value;
+                      });
+                    },
+                  ),
+                  margin: EdgeInsets.all(10),
+                )
+              : SizedBox(height: 10),
+          Expanded(
+            child: buildList(widget.email, type, textvalue, '', searchby),
+          )
+        ],
+      ),
+    );
+    //buildList(widget.email, type, agevalue, citylist));
   }
 
   Widget float1(profiledata) {
@@ -297,6 +435,13 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  static const routeName = '/myprofile';
+  @override
+  void initState() {
+    setCurrentRoute(routeName);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -396,7 +541,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     ListTile(
                       title: Text('About'),
-                      subtitle: Text('shdhhdg'),
+                      subtitle: Text(profile['About Yourself']),
                       leading: Icon(Icons.person),
                     ),
                     ListTile(

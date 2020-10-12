@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:matrimonial/route_generator.dart';
 import 'package:matrimonial/services/shortist_service.dart';
 import 'package:matrimonial/widget/profiledetailpage.dart';
 
@@ -29,11 +30,13 @@ class _SwipeListState extends State<SwipeList> {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           } else {
-            print('1');
+            // print('1');
             print(snapshot.data.data);
             if (snapshot.data.data != null &&
                 snapshot.data.data['shortlist_id'].length > 0) {
               shortlist = snapshot.data.data['shortlist_id'].toList();
+              print('shortlist');
+              print(shortlist);
               return FutureBuilder(
                   future: getProfile(shortlist),
                   builder: (context, snapshot) {
@@ -52,7 +55,12 @@ class _SwipeListState extends State<SwipeList> {
                             return GestureDetector(
                                 onTap: () {
                                   Navigator.pushNamed(context, '/profileview',
-                                      arguments: profiles[index]);
+                                      arguments: {
+                                        "profile": profiles[index].data,
+                                        "admin": false
+                                      });
+                                  // Navigator.pushNamed(context, '/profileview',
+                                  //     arguments: profiles[index]);
                                   // showDialog()
                                 },
                                 child: Container(
