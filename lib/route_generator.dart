@@ -3,6 +3,7 @@ import 'package:matrimonial/authform.dart';
 import 'package:matrimonial/forms/adminforms/addprofile.dart';
 import 'package:matrimonial/forms/adminforms/admin.dart';
 import 'package:matrimonial/forms/adminforms/adminview.dart';
+import 'package:matrimonial/forms/adminforms/fillinfo.dart';
 import 'package:matrimonial/forms/adminforms/search.dart';
 import 'package:matrimonial/forms/infotabs.dart';
 import 'package:matrimonial/forms/payments.dart';
@@ -28,7 +29,9 @@ class RouteGenerator {
     //final ScreenArguments screenargs = setting.arguments;
     switch (setting.name) {
       case '/':
-        return MaterialPageRoute(builder: (BuildContext context) => Authform());
+        return MaterialPageRoute(builder: (BuildContext context) => FillForm());
+      // case '/':
+      //   return MaterialPageRoute(builder: (BuildContext context) => Authform());
       case '/profile':
         return MaterialPageRoute(
             builder: (BuildContext context) => MainPageProfile(args));
