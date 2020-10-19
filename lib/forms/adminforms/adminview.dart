@@ -17,6 +17,7 @@ var keys1 = [
   'Complexion',
 ];
 Map profile = {};
+String mobile;
 
 class AdminView extends StatelessWidget {
   final Map data;
@@ -27,6 +28,7 @@ class AdminView extends StatelessWidget {
     // print(profiles.data);
     setCurrentRoute(routeName);
     profile = data['profile'];
+    mobile = data['mobile'];
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -141,7 +143,7 @@ class AdminView extends StatelessWidget {
                     Container(
                         height: MediaQuery.of(context).size.height / 2,
                         width: double.infinity,
-                        child: SwiperPage(profile)),
+                        child: SwiperPage(profile, mobile)),
                     Text('Swipe to see more')
                   ],
                 );
