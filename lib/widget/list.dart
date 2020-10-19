@@ -40,7 +40,8 @@ Widget buildList(email, type, agevalue, cityvalue, searchby) {
                             Navigator.pushNamed(context, '/adminview',
                                 arguments: ({
                                   "profile": profiles[index].data,
-                                  "admin": true
+                                  "admin": true,
+                                  "mobile": ''
                                 }));
                             // ScreenArguments(profiles[index].data, false));
                           } else {
@@ -48,7 +49,8 @@ Widget buildList(email, type, agevalue, cityvalue, searchby) {
                             Navigator.pushNamed(context, '/profileview',
                                 arguments: {
                                   "profile": profiles[index].data,
-                                  "admin": false
+                                  "admin": false,
+                                  "mobile": ''
                                 });
                             //      ScreenArguments(profiles[index].data, false));
                           }
@@ -187,7 +189,8 @@ Widget buildList(email, type, agevalue, cityvalue, searchby) {
                         Navigator.pushNamed(context, '/profileview',
                             arguments: ({
                               "profile": profiles[index].data,
-                              "admin": false
+                              "admin": false,
+                              "mobile": ''
                             }));
                       },
                       child: Container(
@@ -319,7 +322,13 @@ Widget buildList(email, type, agevalue, cityvalue, searchby) {
             return GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/profileview',
-                      arguments: ScreenArguments(search[index].data, false));
+                      arguments: ({
+                        "profile": search[index].data,
+                        "admin": false,
+                        "mobile": ''
+                      }));
+                  // Navigator.pushNamed(context, '/profileview',
+                  //     arguments: ScreenArguments(search[index].data, false));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -429,9 +438,15 @@ Widget buildList(email, type, agevalue, cityvalue, searchby) {
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                       onTap: () {
+                        // Navigator.pushNamed(context, '/profileview',
+                        //     arguments:
+                        //         ScreenArguments(profiles[index].data, false));
                         Navigator.pushNamed(context, '/profileview',
-                            arguments:
-                                ScreenArguments(profiles[index].data, false));
+                            arguments: ({
+                              "profile": profiles[index].data,
+                              "admin": false,
+                              "mobile": ''
+                            }));
                       },
                       child: Container(
                         decoration: BoxDecoration(

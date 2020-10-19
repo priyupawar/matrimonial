@@ -10,8 +10,8 @@ int _currentIndex = 0;
 
 class SwiperPage extends StatefulWidget {
   final profile;
-
-  SwiperPage(this.profile);
+  final mobile;
+  SwiperPage(this.profile, this.mobile);
   @override
   _SwiperPageState createState() => _SwiperPageState();
 }
@@ -19,14 +19,10 @@ class SwiperPage extends StatefulWidget {
 class _SwiperPageState extends State<SwiperPage> {
   @override
   Widget build(BuildContext context) {
-    return swiper(widget.profile);
-  }
-
-  Widget swiper(profile) {
     List<Widget> content = [
-      personal(profile),
-      education(profile),
-      contact(profile)
+      personal(widget.profile),
+      education(widget.profile),
+      contact(widget.profile, widget.mobile, context)
     ];
 
     return Column(

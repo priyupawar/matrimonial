@@ -12,7 +12,7 @@ final Firestore fire = Firestore.instance;
 Future addToShortlist(data) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var email = prefs.getString('email');
-  print(email);
+  // print(email);
   DocumentSnapshot doc =
       await fire.collection('shortlist').document(email).get();
   if (doc.exists) {
@@ -74,7 +74,7 @@ getSpecificProfile(email) {
 }
 
 Future removeProfile(profile) async {
-  print(profile);
+  // print(profile);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var email = prefs.getString('email');
   fire
@@ -82,4 +82,11 @@ Future removeProfile(profile) async {
       .document(email)
       .updateData({"shortlist_id": FieldValue.arrayRemove(profile)});
   Fluttertoast.showToast(msg: 'Profile Removed');
+}
+
+getPhoneno(email) async {
+  DocumentSnapshot ds = await fire.collection('users').document(email).get();
+
+  return ds.data;
+  //print('get user');
 }

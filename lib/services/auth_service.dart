@@ -63,12 +63,12 @@ void registerUser(profile, remember, context) async {
 
   Fluttertoast.showToast(
       msg: 'Registered Sucessfully', toastLength: Toast.LENGTH_LONG);
-  if (profile['Email'] == 'admin@gmail.com') {
-    Navigator.pushReplacementNamed(context, '/admin',
-        arguments: profile['Email']);
-  } else {
-    Navigator.pushReplacementNamed(context, '/payments', arguments: profile);
-  }
+  // if (profile['Email'] == 'admin@gmail.com') {
+  //   Navigator.pushReplacementNamed(context, '/admin',
+  //       arguments: profile['Email']);
+  // } else {
+  //   Navigator.pushReplacementNamed(context, '/payments', arguments: profile);
+  // }
 }
 
 Widget snackbar(msg) {
@@ -262,12 +262,6 @@ searchprofile(value) async {
   //     .where(
   //         (value) => value['Name'].toLowerCase().contains(value.toLowerCase()))
   //     .toList();
-}
-
-getPhoneno(email) async {
-  DocumentSnapshot ds = await fire.collection('users').document(email).get();
-  return ds.data['Mobile'];
-  //print('get user');
 }
 
 Future updateUser(email, data, context) async {
@@ -608,7 +602,7 @@ Future updatepass(email, password) async {
 _saveDeviceToken(userid) async {
   String fcmtoken = await _fcm.getToken();
   if (fcmtoken != null) {
-    var tokens = fire.collection('users_token').document(fcmtoken);
+    var tokens = fire.collection('users_tokens').document(fcmtoken);
     await tokens.setData({
       'token': fcmtoken,
       'createdAt': FieldValue.serverTimestamp(), // optional
